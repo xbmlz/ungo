@@ -1,6 +1,6 @@
 module github.com/xbmlz/ungo
 
-go 1.18
+go 1.20
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
