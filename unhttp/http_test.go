@@ -15,9 +15,7 @@ func TestNew(t *testing.T) {
 		fmt.Fprintln(w, "Hello, world!")
 	})
 
-	server := New(handler, func(server *Config) {
-		server.ShutdownTimeout = time.Second
-	})
+	server := New(handler)
 
 	go func() {
 		time.Sleep(2 * time.Second)
@@ -27,7 +25,7 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, resp.StatusCode, http.StatusOK)
 
 		time.Sleep(1 * time.Second)
-		err = server.Shutdown()
+		err = server.ShutdownWithTimeout(time.Second)
 		assert.NoError(t, err)
 		t.Log("shutdown completed")
 	}()

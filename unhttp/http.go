@@ -1,6 +1,7 @@
 package unhttp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -8,9 +9,8 @@ import (
 )
 
 type Config struct {
-	Port            int           `json:"port" yaml:"port" env:"HTTP_PORT" default:"8080"`
-	Host            string        `json:"host" yaml:"host" env:"HTTP_HOST" default:"0.0.0.0"`
-	ShutdownTimeout time.Duration `json:"shutdown_timeout" yaml:"shutdown_timeout" env:"HTTP_SHUTDOWN_TIMEOUT" default:"10"`
+	Port int    `json:"port" yaml:"port" env:"HTTP_PORT" default:"8080"`
+	Host string `json:"host" yaml:"host" env:"HTTP_HOST" default:"0.0.0.0"`
 }
 
 type Server struct {
@@ -20,9 +20,8 @@ type Server struct {
 type Options func(*Config)
 
 var config = Config{
-	Port:            8080,
-	Host:            "0.0.0.0",
-	ShutdownTimeout: 10,
+	Port: 8080,
+	Host: "0.0.0.0",
 }
 
 func New(handler http.Handler, options ...Options) *Server {
@@ -48,11 +47,13 @@ func (s *Server) Start() (err error) {
 }
 
 func (s *Server) Shutdown() (err error) {
-	err = s.srv.ListenAndServe()
-	if !errors.Is(err, http.ErrServerClosed) {
-		return err
-	}
-	return nil
+	return s.srv.Shutdown(context.Background())
+}
+
+func (s *Server) ShutdownWithTimeout(timeout time.Duration) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return s.srv.Shutdown(ctx)
 }
 
 func WithPort(port int) Options {
@@ -64,11 +65,5 @@ func WithPort(port int) Options {
 func WithHost(host string) Options {
 	return func(c *Config) {
 		c.Host = host
-	}
-}
-
-func WithShutdownTimeout(timeout time.Duration) Options {
-	return func(c *Config) {
-		c.ShutdownTimeout = timeout
 	}
 }
