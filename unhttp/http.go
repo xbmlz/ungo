@@ -26,7 +26,6 @@ var config = Config{
 }
 
 func New(handler http.Handler, options ...Options) *Server {
-
 	for _, option := range options {
 		option(&config)
 	}
