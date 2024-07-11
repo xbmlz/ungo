@@ -15,7 +15,10 @@ func TestNew(t *testing.T) {
 		fmt.Fprintln(w, "Hello, world!")
 	})
 
-	server := New(handler)
+	server := NewServer(handler, Config{
+		Host: "localhost",
+		Port: 8080,
+	})
 
 	go func() {
 		time.Sleep(2 * time.Second)

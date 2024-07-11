@@ -17,18 +17,7 @@ type Server struct {
 	srv *http.Server
 }
 
-type Options func(*Config)
-
-var config = Config{
-	Port: 8080,
-	Host: "0.0.0.0",
-}
-
-func New(handler http.Handler, options ...Options) *Server {
-	for _, option := range options {
-		option(&config)
-	}
-
+func NewServer(handler http.Handler, config Config) *Server {
 	server := &Server{
 		srv: &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
@@ -54,16 +43,4 @@ func (s *Server) ShutdownWithTimeout(timeout time.Duration) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return s.srv.Shutdown(ctx)
-}
-
-func WithPort(port int) Options {
-	return func(c *Config) {
-		c.Port = port
-	}
-}
-
-func WithHost(host string) Options {
-	return func(c *Config) {
-		c.Host = host
-	}
 }

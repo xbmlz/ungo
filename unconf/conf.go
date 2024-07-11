@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type IConfig interface {
+type Config interface {
 	Parse(any) error
 	Get(string) any
 	GetBool(string) bool
@@ -15,12 +15,12 @@ type IConfig interface {
 	GetInt(string) int
 }
 
-type Config struct {
+type Conf struct {
 	Path   string `json:"path"`
 	parser *viper.Viper
 }
 
-func New(filePath string) (c IConfig, err error) {
+func New(filePath string) (c Config, err error) {
 	var stat os.FileInfo
 
 	stat, err = os.Stat(filePath)
@@ -40,26 +40,26 @@ func New(filePath string) (c IConfig, err error) {
 		return
 	}
 
-	return &Config{Path: filePath, parser: p}, nil
+	return &Conf{Path: filePath, parser: p}, nil
 }
 
 // Parse parses the configuration by object pointer
-func (c *Config) Parse(obj any) error {
+func (c *Conf) Parse(obj any) error {
 	return c.parser.Unmarshal(obj)
 }
 
-func (c *Config) GetString(key string) string {
+func (c *Conf) GetString(key string) string {
 	return c.parser.GetString(key)
 }
 
-func (c *Config) GetBool(key string) bool {
+func (c *Conf) GetBool(key string) bool {
 	return c.parser.GetBool(key)
 }
 
-func (c *Config) Get(s string) any {
+func (c *Conf) Get(s string) any {
 	return c.parser.Get(s)
 }
 
-func (c *Config) GetInt(s string) int {
+func (c *Conf) GetInt(s string) int {
 	return c.parser.GetInt(s)
 }
