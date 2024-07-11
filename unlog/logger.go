@@ -1,9 +1,15 @@
 package unlog
 
-import "log"
+import "time"
 
 // DefaultLogger is default logger.
-var DefaultLogger = NewStdLogger(log.Writer())
+var DefaultLogger = NewZapLogger(Config{
+	Level:        LevelInfo,
+	Path:         "logs",
+	Name:         "app.log",
+	MaxAge:       7 * 24 * time.Hour,
+	RotationTime: 24 * time.Hour,
+})
 
 // Logger logger interface
 type Logger interface {
