@@ -11,7 +11,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
+	ginzap "github.com/gin-contrib/zap"
+	"github.com/gin-gonic/gin"
 	"github.com/xbmlz/ungo/unlog"
+	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -20,15 +24,28 @@ type Config struct {
 }
 
 type Server struct {
-	srv *http.Server
+	srv    *http.Server
+	Router *gin.Engine
 }
 
 func NewServer(handler http.Handler, config Config) *Server {
+	gin.SetMode(gin.ReleaseMode)
+
+	logger, _ := zap.NewProduction()
+	r := gin.New()
+
+	r.Use(cors.Default())
+	r.Use(ginzap.Ginzap(logger, time.RFC3339, true))
+	r.Use(ginzap.RecoveryWithZap(logger, true))
+
+	r.GET("/ping", func(ctx *gin.Context) { ctx.String(200, "OK") })
+
 	server := &Server{
 		srv: &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
 			Handler: handler,
 		},
+		Router: r,
 	}
 	return server
 }
