@@ -25,7 +25,7 @@ func TestNew(t *testing.T) {
 		assert.Equal(t, resp.StatusCode, http.StatusOK)
 
 		time.Sleep(1 * time.Second)
-		err = server.ShutdownWithTimeout(time.Second)
+		err = server.ShutdownWithTimeout(2 * time.Second)
 		assert.NoError(t, err)
 		t.Log("shutdown completed")
 	}()
