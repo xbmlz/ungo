@@ -28,7 +28,7 @@ type Server struct {
 	Router *gin.Engine
 }
 
-func NewServer(handler http.Handler, config Config) *Server {
+func NewServer(config Config) *Server {
 	gin.SetMode(gin.ReleaseMode)
 
 	logger, _ := zap.NewProduction()
@@ -43,7 +43,7 @@ func NewServer(handler http.Handler, config Config) *Server {
 	server := &Server{
 		srv: &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
-			Handler: handler,
+			Handler: r,
 		},
 		Router: r,
 	}
