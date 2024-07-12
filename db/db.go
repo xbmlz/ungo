@@ -1,4 +1,4 @@
-package undb
+package db
 
 import (
 	"errors"
@@ -40,9 +40,9 @@ func New(config Config, opts ...gorm.Option) (db *gorm.DB, err error) {
 	case "sqlite":
 		db, err = gorm.Open(sqlite.Open(config.Name))
 	case "mysql":
-		db, err = gorm.Open(mysql.Open(config.DSN()))
+		db, err = gorm.Open(mysql.Open(config.DSN()), &gorm.Config{})
 	case "postgres":
-		db, err = gorm.Open(postgres.Open(config.DSN()))
+		db, err = gorm.Open(postgres.Open(config.DSN()), &gorm.Config{})
 	default:
 		err = errors.New("unsupported driver")
 	}
