@@ -1,8 +1,7 @@
-package unhttp
+package serve
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,11 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-contrib/cors"
-	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
-	"github.com/xbmlz/ungo/unlog"
-	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -23,38 +18,42 @@ type Config struct {
 	Host string `json:"host" yaml:"host" env:"HTTP_HOST" default:"0.0.0.0"`
 }
 
-type Server struct {
-	srv    *http.Server
+type HTTPServer struct {
+	Srv    *http.Server
 	Router *gin.Engine
 }
 
-func NewServer(config Config) *Server {
+func NewHTTPServer(config Config) (srv *HTTPServer, err error) {
 	gin.SetMode(gin.ReleaseMode)
 
-	logger, _ := zap.NewProduction()
 	r := gin.New()
-
-	r.Use(cors.Default())
-	r.Use(ginzap.Ginzap(logger, time.RFC3339, true))
-	r.Use(ginzap.RecoveryWithZap(logger, true))
 
 	r.GET("/ping", func(ctx *gin.Context) { ctx.String(200, "OK") })
 
-	server := &Server{
-		srv: &http.Server{
+	srv = &HTTPServer{
+		Srv: &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
 			Handler: r,
 		},
 		Router: r,
 	}
-	return server
+
+	return srv, nil
 }
 
-func (s *Server) Run() (err error) {
+func MustNewHTTPServer(config Config) *HTTPServer {
+	srv, err := NewHTTPServer(config)
+	if err != nil {
+		log.Fatalf("Failed to create HTTP server: %v", err)
+	}
+	return srv
+}
+
+func (s *HTTPServer) Run() {
 	// Initializing the server in a goroutine so that
 	// it won't block the graceful shutdown handling below
 	go func() {
-		if err := s.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := s.Srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
@@ -68,15 +67,11 @@ func (s *Server) Run() (err error) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	unlog.Infof("Shutting down server...")
 	// The context is used to inform the server it has 5 seconds to finish
 	// the request it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := s.srv.Shutdown(ctx); err != nil {
-		return errors.New("Server forced to shutdown: " + err.Error())
+	if err := s.Srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
 	}
-
-	unlog.Infof("Server exiting")
-	return nil
 }

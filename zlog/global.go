@@ -1,4 +1,4 @@
-package unlog
+package zlog
 
 // global
 var global Logger

@@ -8,3 +8,11 @@
 [![Release](https://img.shields.io/github/release/xbmlz/ungo.svg?style=flat-square)](https://github.com/xbmlz/ungo/releases)
 
 Unlock the potential of your golang development journey with UnJS - where innovation meets simplicity, and possibilities become limitless.
+
+
+## Usage
+
+```go
+package main
+
+```

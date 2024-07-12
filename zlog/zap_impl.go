@@ -1,4 +1,4 @@
-package unlog
+package zlog
 
 // Debug log
 func (z *zapLogger) Debug(v ...any) {
