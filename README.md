@@ -15,4 +15,28 @@ Unlock the potential of your golang development journey with UnJS - where innova
 ```go
 package main
 
+import (
+	"flag"
+
+	"github.com/xbmlz/ungo/cfg"
+	"github.com/xbmlz/ungo/server"
+)
+
+var configFile = flag.String("c", "config.yaml", "config file path")
+
+type Config struct {
+	Server server.Config
+}
+
+func main() {
+	flag.Parse()
+
+	config := &Config{}
+	cfg.MustLoad(*configFile, config)
+
+	srv := server.MustNewHTTPServer(config.Server)
+	srv.Run()
+}
+
+
 ```
