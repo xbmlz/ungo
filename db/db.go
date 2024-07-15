@@ -27,7 +27,7 @@ func (c *Config) DSN() string {
 	return c.Driver + "://" + c.User + ":" + c.Pass + "@" + c.Host + ":" + c.Port + "/" + c.Name
 }
 
-func New(config Config, opts ...gorm.Option) (db *gorm.DB, err error) {
+func Connect(config Config, opts ...gorm.Option) (db *gorm.DB, err error) {
 
 	if config.Driver == "sqlite" {
 		// if config.Name path is not exist, create it
@@ -48,4 +48,12 @@ func New(config Config, opts ...gorm.Option) (db *gorm.DB, err error) {
 	}
 
 	return db, err
+}
+
+func MustConnect(config Config, opts ...gorm.Option) *gorm.DB {
+	db, err := Connect(config, opts...)
+	if err != nil {
+		panic(err)
+	}
+	return db
 }

@@ -33,6 +33,7 @@ func NewZapLogger(config Config) *zapLogger {
 	if len(fileCores) > 0 {
 		cores = append(cores, fileCores...)
 	}
+
 	cores = append(cores, createConsoleCore())
 	core := zapcore.NewTee(cores...)
 	caller := zap.AddCaller()
