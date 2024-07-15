@@ -2,8 +2,6 @@ module github.com/xbmlz/ungo
 
 go 1.21
 
-toolchain go1.22.4
-
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
