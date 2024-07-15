@@ -7,9 +7,9 @@ import (
 )
 
 func TestNewHTTPServer(t *testing.T) {
-	_, err := NewHTTPServer(Config{
+	srv := NewHTTPServer(Config{
 		Port: 8080,
 		Host: "localhost",
 	})
-	assert.Nil(t, err)
+	assert.NotNil(t, srv)
 }
