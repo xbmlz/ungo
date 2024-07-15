@@ -3,41 +3,25 @@ package server
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 var _ Server = (*HTTPServer)(nil)
 
-type Config struct {
-	Port int    `json:"port" yaml:"port" env:"HTTP_PORT" default:"8080"`
-	Host string `json:"host" yaml:"host" env:"HTTP_HOST" default:"0.0.0.0"`
-}
-
 type HTTPServer struct {
-	srv    *http.Server
-	Router *gin.Engine
+	srv *http.Server
 }
 
-func NewHTTPServer(config Config) *HTTPServer {
-	gin.SetMode(gin.ReleaseMode)
-
-	r := gin.New()
-
-	r.GET("/ping", func(ctx *gin.Context) { ctx.String(200, "OK") })
-
-	srv := &HTTPServer{
+func NewHTTPServer(handler http.Handler, config *Config) *HTTPServer {
+	ser := HTTPServer{
 		srv: &http.Server{
-			Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
-			Handler: r,
+			Addr:    config.Addr(),
+			Handler: handler,
 		},
-		Router: r,
 	}
 
-	return srv
+	return &ser
 }
 
 // Start to start the server and wait for it to listen on the given address

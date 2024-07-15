@@ -4,6 +4,6 @@ import (
 	"testing"
 )
 
-func TestNewHTTPServer(t *testing.T) {
+func TestNewGRPCServer(t *testing.T) {
 
 }
